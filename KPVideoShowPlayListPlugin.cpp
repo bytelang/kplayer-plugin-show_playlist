@@ -49,7 +49,6 @@ KPVideoShowPlayListPlugin::~KPVideoShowPlayListPlugin() {
 void KPVideoShowPlayListPlugin::Task() {
     // 监听下一次文件播放更改
     event_id = global_event_play_list_updated.Subscribe([&](const bool &status) {
-        logger->debug("接收到事件通知，获取到当前播放列表");
         auto play_list = kplayer_plugin_driver->PluginDriverGetPlayList();
         ChangeTitle(play_list);
     });
@@ -61,19 +60,10 @@ void KPVideoShowPlayListPlugin::KillTask() {
 void KPVideoShowPlayListPlugin::InitTask() {
     // 初始化当前文件名
     auto play_list = kplayer_plugin_driver->PluginDriverGetPlayList();
-    logger->debug("已获取到当前播放列表");
     ChangeTitle(play_list);
 }
 
 int KPVideoShowPlayListPlugin::ChangeTitle(const std::vector<std::string> &play_list) {
-    AVDictionary *dict = nullptr;
-
-    void *priv            = GetFilterPriv();
-    if (!priv) {
-        logger->warn("无法对plugin option进行设置; error: {}", "priv为空");
-        return -1;
-    }
-
     // 构建播放列表
     std::stringstream play_list_str;
     int               num = 1;
@@ -86,13 +76,9 @@ int KPVideoShowPlayListPlugin::ChangeTitle(const std::vector<std::string> &play_
         num++;
     }
 
-    av_dict_set(& dict, "text", play_list_str.str().c_str(), 0);
-    int ret = av_opt_set_dict(priv, & dict);
-    if (ret < 0) {
-        logger->error("无法对plugin option进行设置;");
-        return ret;
-    }
-    return 0;
+    std::map<std::string, std::string> value{{"text", play_list_str.str()}};
+
+    return SetPluginValue(value);
 }
 
 KPLAYER_PLUGIN_FUNC(KPVideoShowPlayListPlugin) {
