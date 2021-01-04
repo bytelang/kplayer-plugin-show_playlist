@@ -26,6 +26,7 @@ protected:
     std::string y              = "10";
     std::string line_height    = "3";
     std::string show_extension = "0";
+    std::string count          = "10";
     uint64_t    event_id       = -1;
     void Task() override;
     bool        stop           = false;

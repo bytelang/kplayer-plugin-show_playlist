@@ -26,6 +26,9 @@ KPVideoShowPlayListPlugin::KPVideoShowPlayListPlugin(const std::string &identify
     if (plugin_params_object.params.find("line_height") != plugin_params_object.params.end()) {
         line_height = plugin_params_object.params["line_height"];
     }
+    if (plugin_params_object.params.find("count") != plugin_params_object.params.end()) {
+        count = plugin_params_object.params["count"];
+    }
     if (plugin_params_object.params.find("show_extension") != plugin_params_object.params.end()) {
         show_extension = plugin_params_object.params["show_extension"];
     }
@@ -67,7 +70,14 @@ int KPVideoShowPlayListPlugin::ChangeTitle(const std::vector<std::string> &play_
     // 构建播放列表
     std::stringstream play_list_str;
     int               num = 1;
-    for (const auto   &item : play_list) {
+
+    // 数值转换
+    int max_count = std::stoi(count);
+
+    for (const auto &item : play_list) {
+        if (num > max_count)
+            break;
+
         KPlayer::FileInfo file_info(item);
         std::string       title = show_extension == "1" ? file_info.GetFileName() : file_info.GetBaseFileName();
 
